@@ -11,6 +11,8 @@ import org.jlab.clara.std.services.EventWriterException;
 import org.jlab.clas.std.services.util.Clas12Types;
 import org.jlab.coda.jevio.EventWriter;
 import org.jlab.coda.jevio.EvioException;
+import org.jlab.coda.hipo.CompressionType;
+import org.jlab.coda.jevio.EvioBank;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,11 +46,32 @@ public class EvioToEvioWriter extends AbstractEventWriterService<EventWriter> {
             boolean overwriteOK = getOverwriteOption(opts);
             boolean append = false;
 
+            // pre-evio-6x:
+            //return new EventWriter(baseName, directory, runType,
+            //                       runNumber, split,
+            //                       blockSizeMax, blockCountMax, bufferSize,
+            //                       byteOrder, xmlDictionary, null,
+            //                       overwriteOK, append);
+  
+            // evio-6x:
+            EvioBank firstEvent = null;
+            int streamId = 0;
+            int splitNumber = 0;
+            int splitIncrement = 1;
+            int streamCount = 1;
+            CompressionType compType = CompressionType.RECORD_COMPRESSION_LZ4;
+            int compressionThreads = 1;
+            int ringSize = -1;
             return new EventWriter(baseName, directory, runType,
-                                   runNumber, split,
-                                   blockSizeMax, blockCountMax, bufferSize,
-                                   byteOrder, xmlDictionary, null,
-                                   overwriteOK, append);
+                             runNumber, split,
+                             blockSizeMax, blockCountMax,
+                             byteOrder, xmlDictionary,
+                             overwriteOK, append,
+                             firstEvent, streamId,
+                             splitNumber, splitIncrement, streamCount,
+                             compType, compressionThreads,
+                             ringSize, bufferSize);
+
         } catch (JSONException | EvioException e) {
             throw new EventWriterException(e);
         }
